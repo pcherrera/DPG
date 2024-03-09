@@ -26,12 +26,18 @@ w,r,d = XY.TestFunction()
 
 n = specialcf.normal(mesh.dim)
 
-a = BilinearForm(XY,symmetric=True, eliminate_internal=True)
-a+= SymbolicBFI(grad(u) * grad(d) + grad(e) * grad(w))
-a+= SymbolicBFI(q*n*d, element_boundary=True)
-a+= SymbolicBFI(e*r*n, element_boundary=True)
-a.components[2] += Mass(1.0)
-a.components[2] += Laplace(1.0)
+# bilinear form a = b+b*+r with a(u,q,e;w r,d)
+a = BilinearForm(XY, symmetric=True, eliminate_internal=True)
+# bilinear form b(u,q;d)
+a+= SymbolicBFI(grad(u) * grad(d))
+a+= SymbolicBFI(-q*n*d, element_boundary=True)
+# bilinear form b*(e;w r)
+a+= SymbolicBFI(grad(e) * grad(w))
+a+= SymbolicBFI(-e*r*n, element_boundary=True) 
+# inner product 
+a+= SymbolicBFI(grad(e) * grad(d))
+a+= SymbolicBFI(e*d)
+
 
 b = LinearForm(XY)
 b+= SymbolicLFI(f*d)
